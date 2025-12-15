@@ -1,10 +1,9 @@
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
 
-// Skalierung: 1 Einheit = 20 Pixel (Spielfeld wird 12x20 Blöcke groß)
 context.scale(20, 20);
 
-// Farben für die Steine
+// Farben
 const colors = [
     null,
     '#FF0D72', // T
@@ -16,7 +15,8 @@ const colors = [
     '#3877FF', // Z
 ];
 
-// Hilfsfunktion: Leere Matrix erstellen
+// --- Hilfsfunktionen ---
+
 function createMatrix(w, h) {
     const matrix = [];
     while (h--) {
@@ -25,54 +25,18 @@ function createMatrix(w, h) {
     return matrix;
 }
 
-// Hilfsfunktion: Tetris-Steine definieren
 function createPiece(type) {
-    if (type === 'I') {
-        return [
-            [0, 1, 0, 0],
-            [0, 1, 0, 0],
-            [0, 1, 0, 0],
-            [0, 1, 0, 0],
-        ];
-    } else if (type === 'L') {
-        return [
-            [0, 2, 0],
-            [0, 2, 0],
-            [0, 2, 2],
-        ];
-    } else if (type === 'J') {
-        return [
-            [0, 3, 0],
-            [0, 3, 0],
-            [3, 3, 0],
-        ];
-    } else if (type === 'O') {
-        return [
-            [4, 4],
-            [4, 4],
-        ];
-    } else if (type === 'Z') {
-        return [
-            [5, 5, 0],
-            [0, 5, 5],
-            [0, 0, 0],
-        ];
-    } else if (type === 'S') {
-        return [
-            [0, 6, 6],
-            [6, 6, 0],
-            [0, 0, 0],
-        ];
-    } else if (type === 'T') {
-        return [
-            [0, 7, 0],
-            [7, 7, 7],
-            [0, 0, 0],
-        ];
-    }
+    if (type === 'I') return [[0, 1, 0, 0],[0, 1, 0, 0],[0, 1, 0, 0],[0, 1, 0, 0]];
+    if (type === 'L') return [[0, 2, 0],[0, 2, 0],[0, 2, 2]];
+    if (type === 'J') return [[0, 3, 0],[0, 3, 0],[3, 3, 0]];
+    if (type === 'O') return [[4, 4],[4, 4]];
+    if (type === 'Z') return [[5, 5, 0],[0, 5, 5],[0, 0, 0]];
+    if (type === 'S') return [[0, 6, 6],[6, 6, 0],[0, 0, 0]];
+    if (type === 'T') return [[0, 7, 0],[7, 7, 7],[0, 0, 0]];
 }
 
-// Prüft auf volle Reihen und entfernt sie
+// --- Spiel Logik ---
+
 function arenaSweep() {
     let rowCount = 1;
     outer: for (let y = arena.length - 1; y > 0; --y) {
@@ -90,7 +54,6 @@ function arenaSweep() {
     }
 }
 
-// Kollisionserkennung
 function collide(arena, player) {
     const m = player.matrix;
     const o = player.pos;
@@ -105,7 +68,6 @@ function collide(arena, player) {
     return false;
 }
 
-// Zeichnet das Spielfeld und den Spieler
 function draw() {
     context.fillStyle = '#000';
     context.fillRect(0, 0, canvas.width, canvas.height);
@@ -114,7 +76,6 @@ function draw() {
     drawMatrix(player.matrix, player.pos);
 }
 
-// Zeichnet eine einzelne Matrix (Stein oder Arena)
 function drawMatrix(matrix, offset) {
     matrix.forEach((row, y) => {
         row.forEach((value, x) => {
@@ -126,7 +87,6 @@ function drawMatrix(matrix, offset) {
     });
 }
 
-// Kopiert den Spieler-Stein in die Arena
 function merge(arena, player) {
     player.matrix.forEach((row, y) => {
         row.forEach((value, x) => {
@@ -137,21 +97,18 @@ function merge(arena, player) {
     });
 }
 
-// Rotiert die Matrix
 function rotate(matrix, dir) {
     for (let y = 0; y < matrix.length; ++y) {
         for (let x = 0; x < y; ++x) {
             [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
         }
     }
-    if (dir > 0) {
-        matrix.forEach(row => row.reverse());
-    } else {
-        matrix.reverse();
-    }
+    if (dir > 0) matrix.forEach(row => row.reverse());
+    else matrix.reverse();
 }
 
-// Lässt den Stein fallen
+// --- Spieler Aktionen ---
+
 function playerDrop() {
     player.pos.y++;
     if (collide(arena, player)) {
@@ -164,7 +121,6 @@ function playerDrop() {
     dropCounter = 0;
 }
 
-// Bewegt den Stein seitlich
 function playerMove(offset) {
     player.pos.x += offset;
     if (collide(arena, player)) {
@@ -172,7 +128,6 @@ function playerMove(offset) {
     }
 }
 
-// Initialisiert einen neuen Stein oder setzt Spiel zurück
 function playerReset() {
     const pieces = 'ILJOTSZ';
     player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
@@ -180,7 +135,6 @@ function playerReset() {
     player.pos.x = (arena[0].length / 2 | 0) -
                    (player.matrix[0].length / 2 | 0);
 
-    // Game Over Check
     if (collide(arena, player)) {
         arena.forEach(row => row.fill(0));
         player.score = 0;
@@ -188,7 +142,6 @@ function playerReset() {
     }
 }
 
-// Rotiert den Spieler (inkl. Wall Kick)
 function playerRotate(dir) {
     const pos = player.pos.x;
     let offset = 1;
@@ -204,13 +157,52 @@ function playerRotate(dir) {
     }
 }
 
-// Game Loop Variablen
+// --- Game Control (Pause / Reset) ---
+
+let isPaused = false;
+let animationId = null;
+
+function resetGame() {
+    arena.forEach(row => row.fill(0));
+    player.score = 0;
+    updateScore();
+    playerReset();
+    if (isPaused) {
+        isPaused = false;
+        update();
+        document.getElementById('btn-pause').innerText = "Pause";
+    }
+}
+
+function togglePause() {
+    if (isPaused) {
+        isPaused = false;
+        update();
+        document.getElementById('btn-pause').innerText = "Pause";
+    } else {
+        isPaused = true;
+        cancelAnimationFrame(animationId);
+        
+        // Pause Screen zeichnen
+        context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.fillStyle = '#fff';
+        context.font = '1px Arial';
+        context.fillText("PAUSE", 4.5, 9);
+        
+        document.getElementById('btn-pause').innerText = "Weiter";
+    }
+}
+
+// --- Game Loop ---
+
 let dropCounter = 0;
 let dropInterval = 1000;
 let lastTime = 0;
 
-// Hauptschleife des Spiels
 function update(time = 0) {
+    if (isPaused) return;
+
     const deltaTime = time - lastTime;
     lastTime = time;
 
@@ -220,39 +212,63 @@ function update(time = 0) {
     }
 
     draw();
-    requestAnimationFrame(update);
+    animationId = requestAnimationFrame(update);
 }
 
 function updateScore() {
     document.getElementById('score').innerText = 'Punkte: ' + player.score;
 }
 
-// Arena erstellen (12 breit, 20 hoch)
+// --- Init & Events ---
+
 const arena = createMatrix(12, 20);
 
-// Spieler Objekt initialisieren
 const player = {
     pos: {x: 0, y: 0},
     matrix: null,
     score: 0,
 };
 
-// Tastatursteuerung
+// Tastatur
 document.addEventListener('keydown', event => {
+    if (isPaused) return; // Keine Steuerung wenn pausiert
+    
     if (event.keyCode === 37) {
-        playerMove(-1); // Links
+        playerMove(-1);
     } else if (event.keyCode === 39) {
-        playerMove(1); // Rechts
+        playerMove(1);
     } else if (event.keyCode === 40) {
-        playerDrop(); // Runter
+        playerDrop();
     } else if (event.keyCode === 81) {
-        playerRotate(-1); // Q (Links rotieren)
+        playerRotate(-1);
     } else if (event.keyCode === 87 || event.keyCode === 38) {
-        playerRotate(1); // W oder Pfeil hoch (Rechts rotieren)
+        playerRotate(1);
     }
 });
 
-// Spielstart
+// Buttons
+document.getElementById('btn-reset').addEventListener('click', resetGame);
+document.getElementById('btn-pause').addEventListener('click', togglePause);
+
+// Touch Controls
+function addTouchListener(id, action) {
+    const btn = document.getElementById(id);
+    btn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (!isPaused) action();
+    });
+    btn.addEventListener('click', (e) => {
+         // Fallback für Tests am PC mit Maus
+        if (!isPaused) action();
+    });
+}
+
+addTouchListener('t-left', () => playerMove(-1));
+addTouchListener('t-right', () => playerMove(1));
+addTouchListener('t-down', () => playerDrop());
+addTouchListener('t-rotate', () => playerRotate(1));
+
+// Start
 playerReset();
 updateScore();
 update();
