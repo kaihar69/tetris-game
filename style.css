@@ -7,7 +7,6 @@ body {
     align-items: center;
     min-height: 100vh;
     margin: 0;
-    /* Verhindert Pull-to-Refresh auf mobilen Browsern */
     overscroll-behavior: none; 
 }
 
@@ -31,12 +30,12 @@ canvas {
     margin-bottom: 15px;
 }
 
-/* --- Desktop Buttons --- */
 #controls {
     margin-top: 10px;
     display: flex;
     gap: 10px;
     justify-content: center;
+    flex-wrap: wrap; /* Falls Bildschirme sehr schmal sind */
 }
 
 .retro-btn {
@@ -50,6 +49,7 @@ canvas {
     text-transform: uppercase;
     font-weight: bold;
     transition: background 0.2s;
+    min-width: 80px;
 }
 
 .retro-btn:hover {
@@ -61,25 +61,21 @@ canvas {
     color: #000;
 }
 
-/* --- Mobile Controls (Standardmäßig aus) --- */
 #mobile-controls {
     display: none; 
     margin-top: 20px;
     flex-direction: column;
     gap: 10px;
     width: 100%;
-    max-width: 320px; /* Breite an Canvas anpassen */
+    max-width: 320px; 
     margin-left: auto;
     margin-right: auto;
 }
 
-/* Wenn Bildschirm kleiner als 800px ist (Handy/Tablet) */
 @media (max-width: 800px) {
     #mobile-controls {
         display: flex;
     }
-    
-    /* Buttons etwas ausblenden am PC, falls Fenster klein ist */
     #controls {
         margin-bottom: 10px;
     }
@@ -98,7 +94,7 @@ canvas {
     font-size: 20px;
     padding: 15px 0;
     border-radius: 8px;
-    flex: 1; /* Alle Buttons gleich breit */
+    flex: 1; 
     touch-action: manipulation;
     cursor: pointer;
     user-select: none;
