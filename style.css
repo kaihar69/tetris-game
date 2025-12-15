@@ -1,0 +1,29 @@
+body {
+    background: #202028; /* Dunkler Hintergrund */
+    color: #fff;
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center; /* Horizontal zentrieren */
+    align-items: center;     /* Vertikal zentrieren */
+    height: 100vh;           /* Volle Bildschirmhöhe */
+    margin: 0;
+    overflow: hidden;        /* Keine Scrollbalken */
+}
+
+#game-container {
+    text-align: center;
+    position: relative;
+}
+
+canvas {
+    border: 2px solid #fff;
+    background-color: #000;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5); /* Leichter Schatten */
+    display: block;
+    margin-bottom: 10px;
+}
+
+#score {
+    font-size: 24px;
+    font-weight: bold;
+}
